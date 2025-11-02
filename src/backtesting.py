@@ -6,7 +6,10 @@ from typing import Dict, List, Tuple, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.mixture import GaussianMixture
-from statsmodels.tsa.regime_switching import MarkovRegression
+try:
+    from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
+except ImportError:
+    MarkovRegression = None
 import warnings
 from utils import (calculate_returns, calculate_sharpe_ratio, calculate_max_drawdown,
                   calculate_alpha_beta, performance_summary)
