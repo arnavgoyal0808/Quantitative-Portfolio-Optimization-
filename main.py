@@ -43,8 +43,11 @@ def main():
     # Configuration
     START_DATE = '2015-01-01'
     END_DATE = '2023-12-31'
+    USE_DEMO_DATA = True  # Set to True to use sample data instead of downloading
     
     print(f"\nAnalysis Period: {START_DATE} to {END_DATE}")
+    if USE_DEMO_DATA:
+        print("DEMO MODE: Using sample data instead of downloading from Yahoo Finance")
     
     # Step 1: Data Loading
     print("\n" + "="*50)
@@ -56,32 +59,52 @@ def main():
     
     print(f"Loading data for {len(tickers)} stocks...")
     
-    # Check if data already exists
-    try:
-        prices = loader.load_data('stock_prices.csv')
-        volumes = loader.load_data('stock_volumes.csv')
-        market_data = loader.load_data('market_data.csv')
-        print("Loaded existing data files.")
-    except FileNotFoundError:
-        print("Downloading fresh data...")
-        
-        # Download stock data
-        stock_data = loader.download_stock_data(tickers)
-        
-        # Create matrices
+    # Check if data already exists and we're not in demo mode
+    if not USE_DEMO_DATA:
+        try:
+            prices = loader.load_data('stock_prices.csv')
+            volumes = loader.load_data('stock_volumes.csv')
+            market_data = loader.load_data('market_data.csv')
+            print("Loaded existing data files.")
+        except FileNotFoundError:
+            print("Downloading fresh data...")
+            
+            # Download stock data
+            stock_data = loader.download_stock_data(tickers)
+            
+            # Create matrices
+            prices = loader.create_price_matrix(stock_data)
+            volumes = loader.create_volume_matrix(stock_data)
+            
+            # Get market data
+            market_data = loader.get_market_data()
+            
+            # Save data
+            loader.save_data(prices, 'stock_prices.csv')
+            loader.save_data(volumes, 'stock_volumes.csv')
+            loader.save_data(market_data, 'market_data.csv')
+    else:
+        # Use sample data for demo mode
+        stock_data = loader.create_sample_data()
         prices = loader.create_price_matrix(stock_data)
         volumes = loader.create_volume_matrix(stock_data)
+        market_data = loader.create_sample_market_data()
         
-        # Get market data
-        market_data = loader.get_market_data()
-        
-        # Save data
+        # Save sample data
         loader.save_data(prices, 'stock_prices.csv')
         loader.save_data(volumes, 'stock_volumes.csv')
         loader.save_data(market_data, 'market_data.csv')
+        print("Created and saved sample data for demonstration.")
     
     print(f"Final dataset: {prices.shape[0]} days, {prices.shape[1]} stocks")
-    print(f"Date range: {prices.index.min().date()} to {prices.index.max().date()}")
+    
+    # Check if dataframe is not empty before accessing date attributes
+    if not prices.empty:
+        print(f"Date range: {prices.index.min().date()} to {prices.index.max().date()}")
+    else:
+        print("Warning: No price data was loaded. Please check your internet connection and try again.")
+        print("Exiting program.")
+        return
     
     # Step 2: Factor Analysis
     print("\n" + "="*50)
