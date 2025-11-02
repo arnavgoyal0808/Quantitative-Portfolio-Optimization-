@@ -219,7 +219,7 @@ class TestPortfolioOptimization:
             size=252
         )
         
-        prices_data = (1 + returns_data).cumprod() * 100
+        prices_data = (1 + returns_data).cumprod(axis=0) * 100
         self.prices = pd.DataFrame(prices_data,
                                  index=dates,
                                  columns=[f'STOCK_{i}' for i in range(n_stocks)])
@@ -284,7 +284,7 @@ class TestBacktesting:
             size=252
         )
         
-        prices_data = (1 + returns_data).cumprod() * 100
+        prices_data = (1 + returns_data).cumprod(axis=0) * 100
         self.prices = pd.DataFrame(prices_data,
                                  index=dates,
                                  columns=[f'STOCK_{i}' for i in range(n_stocks)])
@@ -370,7 +370,7 @@ class TestIntegration:
             size=100
         )
         
-        prices_data = (1 + returns_data).cumprod() * 100
+        prices_data = (1 + returns_data).cumprod(axis=0) * 100
         prices = pd.DataFrame(prices_data,
                             index=dates,
                             columns=['AAPL', 'MSFT', 'GOOGL'])
